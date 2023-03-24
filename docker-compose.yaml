@@ -1,0 +1,33 @@
+version: '3.6'
+services:
+  postgres_phi:
+    container_name: "local_postgres_pii"
+    image: postgres:12
+    ports:
+    - "5433:5432"
+    restart: unless-stopped
+    volumes:
+    - phi_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespasswordphi
+  graphql-engine:
+    container_name: "local_hasura_pii"
+    image: hasura/graphql-engine:v2.13.2.cli-migrations-v3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+    - "8081:8080"
+    depends_on:
+    - "postgres_phi"
+    restart: unless-stopped
+    volumes:
+      - ./migrations:/hasura-migrations
+      - ./metadata:/hasura-metadata
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgrespasswordphi@postgres_phi:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: admin_secret
+
+volumes:
+  phi_db_data:
