@@ -1,0 +1,68 @@
+name: Hasura CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main, dev, stage ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  cd-cd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set production envs
+        if: endsWith(github.ref, '/main')
+        run: |
+          echo "HASURA_ENDPOINT=${{ secrets.PROD_HASURA_ENDPOINT }}" >> $GITHUB_ENV
+          echo "HASURA_ADMIN_SECRET=${{ secrets.PROD_HASURA_ADMIN_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set staging envs
+        if: endsWith(github.ref, '/stage')
+        run: |
+          echo "HASURA_ENDPOINT=${{ secrets.STAGE_HASURA_ENDPOINT }}" >> $GITHUB_ENV
+          echo "HASURA_ADMIN_SECRET=${{ secrets.STAGE_HASURA_ADMIN_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set dev envs
+        if: endsWith(github.ref, '/dev')
+        run: |
+          echo "HASURA_ENDPOINT=${{ secrets.DEV_HASURA_ENDPOINT }}" >> $GITHUB_ENV
+          echo "HASURA_ADMIN_SECRET=${{ secrets.DEV_HASURA_ADMIN_SECRET }}" >> $GITHUB_ENV
+
+
+      - name: Installing Hasura CLI
+        run: |
+          curl -L https://github.com/hasura/graphql-engine/raw/stable/cli/get.sh | bash
+
+          # Verifying Hasura installation
+          hasura -h
+
+          # Print current env
+          echo "Env: $(echo $ENVIRONMENT)"
+
+          # Printing current path
+          echo "Current path: $(pwd)"
+
+          # Listing files
+          ls -la
+
+      - name: Installing Node dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Generating a config file
+        run: npm run generate-config
+
+      - name: Applying Migrations
+        run: |
+          hasura migrate apply --database-name default --skip-update-check
+          hasura migrate status --database-name default --skip-update-check
+
+      - name: Applying Metadata
+        run: |
+          hasura metadata apply --skip-update-check
+          hasura metadata reload --skip-update-check
+          hasura metadata ic list --skip-update-check
