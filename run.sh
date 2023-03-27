@@ -2,4 +2,4 @@
 hasura console \
     --skip-update-check \
     --no-browser \
-    --console-port 8420
+    --console-port 9696
