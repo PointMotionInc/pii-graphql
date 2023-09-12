@@ -1,4 +1,7 @@
-# A repo to keep track of database Migrations and Hasura metadata
+# Introduction
+The PII (Personally Identifiable Information) of paitents is stored in a separate database, for regulatory compliance requirements. Hasura will listen to requests made by reverse proxy server, do request authentication and authorization and return requested PII information.
+
+# Database Migrations and Hasura metadata
 
 Hasura has a CLI which will help you save each action that you do on the console, including creating tables/views and schema modifying SQL statements, as SQL files. These files are called migrations and they can be applied and rolled back step-by-step. These files can be version controlled and can be used with your CI/CD system to make incremental updates.
 

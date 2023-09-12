@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  graphql-engine:
+    image: hasura/graphql-engine:v2.13.2.cli-migrations-v3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: soundhealth-dev-phi-gql
+    ports:
+    - "8081:8080"
+    restart: unless-stopped
+    volumes:
+      - ./migrations:/hasura-migrations
+      - ./metadata:/hasura-metadata
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: ${PII_GQL_HASURA_GRAPHQL_DATABASE_URL}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: ${PII_GQL_HASURA_GRAPHQL_ENABLE_CONSOLE}
+      HASURA_GRAPHQL_DEV_MODE: ${PII_GQL_HASURA_GRAPHQL_DEV_MODE}
+      HASURA_GRAPHQL_ADMIN_SECRET: ${PII_GQL_HASURA_GRAPHQL_ADMIN_SECRET}
+    command:
+    - graphql-engine
+    - serve
