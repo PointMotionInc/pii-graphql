@@ -1,5 +1,15 @@
 version: '3.8'
 services:
+  postgres_phi:
+    container_name: "local_postgres_pii"
+    image: postgres:12
+    ports:
+    - "5433:5432"
+    restart: unless-stopped
+    volumes:
+    - phi_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgrespasswordphi
   graphql-engine:
     image: hasura/graphql-engine:v2.13.2.cli-migrations-v3
     extra_hosts:
@@ -19,3 +29,6 @@ services:
     command:
     - graphql-engine
     - serve
+
+volumes:
+  phi_db_data:
