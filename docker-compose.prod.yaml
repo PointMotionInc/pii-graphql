@@ -14,7 +14,7 @@ services:
     image: hasura/graphql-engine:v2.13.2.cli-migrations-v3
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    container_name: soundhealth-dev-phi-gql
+    container_name: pii_graphql_engine
     ports:
     - "8081:8080"
     restart: unless-stopped
